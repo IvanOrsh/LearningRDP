@@ -30,20 +30,109 @@ class Parser {
    * Main entry point
    *
    * Program
-   *  : NumericLiteral
+   *  : StatementList
    *  ;
    */
   Program() {
     return {
       type: 'Program',
-      body: this.Literal(),
+      body: this.StatementList(),
     };
+  }
+
+  /**
+   * StatementList
+   *  : Statement
+   *  | StatementList Statement -> Statement Statement Statement Statement
+   *  ;
+   */
+  StatementList(stopLookahead = null) {
+    const statementList = [this.Statement()];
+
+    while (this._lookahead !== null && this._lookahead.type !== stopLookahead) {
+      statementList.push(this.Statement());
+    }
+
+    return statementList;
+  }
+
+  /**
+   * Statement
+   *  : ExpressionStatement
+   *  | BlockStatement
+   *  | EmptyStatement
+   *  ;
+   */
+  Statement() {
+    switch (this._lookahead.type) {
+      case ';':
+        return this.EmptyStatement();
+      case '{':
+        return this.BlockStatement();
+      default:
+        return this.ExpressionStatement();
+    }
+  }
+
+  /**
+   * EmptyStatement
+   *   : ';'
+   *   ;
+   */
+  EmptyStatement() {
+    this._eat(';');
+
+    return {
+      type: 'EmptyStatement',
+    };
+  }
+
+  /**
+   * BlockStatement
+   *   : '{' OptStatementList '}'
+   *   :
+   */
+  BlockStatement() {
+    this._eat('{');
+
+    const body = this._lookahead.type !== '}' ? this.StatementList('}') : [];
+
+    this._eat('}');
+
+    return {
+      type: 'BlockStatement',
+      body,
+    };
+  }
+
+  /**
+   *  ExpressionStatement
+   *   : Expression ';'
+   *   ;
+   */
+  ExpressionStatement() {
+    const expression = this.Expression();
+    this._eat(';');
+    return {
+      type: 'ExpressionStatement',
+      expression,
+    };
+  }
+
+  /**
+   *  Expression
+   *   : Literal
+   *   ;
+   */
+  Expression() {
+    return this.Literal();
   }
 
   /**
    * Literal
    *  : NumericLiteral
    *  | StringLiteral
+   *  ;
    */
   Literal() {
     switch (this._lookahead.type) {
@@ -52,7 +141,9 @@ class Parser {
       case 'STRING':
         return this.StringLiteral();
       default:
-        throw new SyntaxError(`Literal: unexpected literal production`);
+        throw new SyntaxError(
+          `Literal: unexpected literal production: ${this._lookahead.type}`
+        );
     }
   }
 

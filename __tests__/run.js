@@ -8,7 +8,12 @@ const assert = require('assert');
 /**
  * List of tests.
  */
-const tests = [require('./literal-test')];
+const tests = [
+  require('./literal-test'),
+  require('./statement-list'),
+  require('./block-test'),
+  require('./empty-statement'),
+];
 
 const parser = new Parser();
 
