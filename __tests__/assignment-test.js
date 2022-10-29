@@ -1,4 +1,4 @@
-moudle.exports = test => {
+module.exports = test => {
   // Simple assignment
   test('x = 42;', {
     type: 'Program',
