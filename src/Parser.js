@@ -1,82 +1,5 @@
 const { Tokenizer } = require('./Tokenizer');
 
-//----------------------------------
-// Default AST node factories
-
-const DefaultFactory = {
-  Program(body) {
-    return {
-      type: 'Program',
-      body,
-    };
-  },
-
-  EmptyStatement() {
-    return {
-      type: 'EmptyStatement',
-    };
-  },
-
-  BlockStatement(body) {
-    return {
-      type: 'BlockStatement',
-      body,
-    };
-  },
-
-  ExpressionStatement(expression) {
-    return {
-      type: 'ExpressionStatement',
-      expression,
-    };
-  },
-
-  StringLiteral(value) {
-    return {
-      type: 'StringLiteral',
-      value,
-    };
-  },
-
-  NumericLiteral(value) {
-    return {
-      type: 'NumericLiteral',
-      value,
-    };
-  },
-};
-
-//---------------------------------
-// S-expression AST node factories
-
-const SExpressionFactory = {
-  Program(body) {
-    return ['begin', body];
-  },
-
-  EmptyStatement() {},
-
-  BlockStatement(body) {
-    return ['begin', body];
-  },
-
-  ExpressionStatement(expression) {
-    return expression;
-  },
-
-  StringLiteral(value) {
-    return `${value}`;
-  },
-
-  NumericLiteral(value) {
-    return value;
-  },
-};
-
-const AST_MODE = 'default';
-
-const factory = AST_MODE === 'default' ? DefaultFactory : SExpressionFactory;
-
 class Parser {
   /**
    * Initializes the parser
@@ -111,7 +34,10 @@ class Parser {
    *  ;
    */
   Program() {
-    return factory.Program(this.StatementList());
+    return {
+      type: 'Program',
+      body: this.StatementList(),
+    };
   }
 
   /**
@@ -156,7 +82,9 @@ class Parser {
   EmptyStatement() {
     this._eat(';');
 
-    return factory.EmptyStatement();
+    return {
+      type: 'EmptyStatement',
+    };
   }
 
   /**
@@ -171,7 +99,10 @@ class Parser {
 
     this._eat('}');
 
-    return factory.BlockStatement(body);
+    return {
+      type: 'BlockStatement',
+      body,
+    };
   }
 
   /**
@@ -182,7 +113,10 @@ class Parser {
   ExpressionStatement() {
     const expression = this.Expression();
     this._eat(';');
-    return factory.ExpressionStatement(expression);
+    return {
+      type: 'ExpressionStatement',
+      expression,
+    };
   }
 
   /**
@@ -221,7 +155,10 @@ class Parser {
   StringLiteral() {
     const token = this._eat('STRING');
     const value = token.value.slice(1, -1);
-    return factory.StringLiteral(value);
+    return {
+      type: 'StringLiteral',
+      value,
+    };
   }
 
   /**
@@ -232,7 +169,10 @@ class Parser {
   NumericLiteral() {
     const token = this._eat('NUMBER');
     const value = Number(token.value);
-    return factory.NumericLiteral(value);
+    return {
+      type: 'NumericLiteral',
+      value,
+    };
   }
 
   /**
