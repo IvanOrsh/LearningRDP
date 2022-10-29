@@ -22,12 +22,6 @@ const parser = new Parser();
  */
 function exec() {
   const program = `
-    /**
-     * Documentation comment:
-     */
-    "hello";
-  
-    // Number
     42;
   `;
 
