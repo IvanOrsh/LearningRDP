@@ -125,7 +125,79 @@ class Parser {
    *   ;
    */
   Expression() {
-    return this.AdditiveExpression();
+    return this.AssignmentExpression();
+  }
+
+  /**
+   * AssignmentExpression
+   *  : AdditiveExpression
+   *  | LeftHandSideExpression AssignmentOperator AssignmentExpression
+   *  ;
+   */
+  AssignmentExpression() {
+    const left = this.AdditiveExpression();
+
+    if (!this._isAssignmentOperator(this._lookahead.type)) {
+      return left;
+    }
+
+    return {
+      type: 'AssignmentExpression',
+      operator: this.AssignmentOperator().value,
+      left: this._checkValidAssignmentTarget(left),
+      right: this.AssignmentExpression(),
+    };
+  }
+
+  /**
+   * LeftHandSideExpression
+   *  : Identifier
+   *  ;
+   */
+  LeftHandSideExpression() {
+    return this.Identifier();
+  }
+
+  /**
+   * Identifier
+   *  : IDENTIFIER
+   *  ;
+   */
+  Identifier() {
+    const name = this._eat('IDENTIFIER').value;
+    return {
+      type: 'Identifier',
+      name,
+    };
+  }
+
+  /**
+   * Extra check whether it's valid assignment target.
+   */
+  _checkValidAssignmentTarget(node) {
+    if (node.type === 'Identifier') {
+      return node;
+    }
+    throw new SyntaxError('Invalid left-hand side in assignment expression');
+  }
+
+  /**
+   * Whether the token is an assignment operator.
+   */
+  _isAssignmentOperator(tokenType) {
+    return tokenType === 'SIMPLE_ASSIGN' || tokenType === 'COMPLEX_ASSIGN';
+  }
+
+  /**
+   * AssignmentOperator
+   *  : SIMPLE_ASSIGN
+   *  | COMPLEX_ASSIGN
+   */
+  AssignmentOperator() {
+    if (this._lookahead.type === 'SIMPLE_ASSIGN') {
+      return this._eat('SIMPLE_ASSIGN');
+    }
+    return this._eat('COMPLEX_ASSIGN');
   }
 
   /**
@@ -180,15 +252,26 @@ class Parser {
    * PrimaryExpression
    *  : Literal
    *  | ParenthesizedExpression
+   *  | LeftHandSideExpression
    *  ;
    */
   PrimaryExpression() {
+    if (this._isLiteral(this._lookahead.type)) {
+      return this.Literal();
+    }
     switch (this._lookahead.type) {
       case '(':
         return this.ParenthesizedExpression();
       default:
-        return this.Literal();
+        return this.LeftHandSideExpression();
     }
+  }
+
+  /**
+   * Whether the token is a literal.
+   */
+  _isLiteral(tokenType) {
+    return tokenType === 'NUMBER' || tokenType === 'STRING';
   }
 
   /**
