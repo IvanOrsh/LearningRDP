@@ -19,6 +19,7 @@ const tests = [
   require('./if-test'),
   require('./relational-test'),
   require('./equality-test'),
+  require('./logical-test'),
 ];
 
 const parser = new Parser();

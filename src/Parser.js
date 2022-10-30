@@ -99,12 +99,6 @@ class Parser {
       this._lookahead != null && this._lookahead.type === 'else'
         ? this._eat('else') && this.Statement()
         : null;
-    // if (this._lookahead !== null && this._lookahead.type === 'else') {
-    //   this._eat('else');
-    //   alternate = this.Statement();
-    // } else {
-    //   alternate = null;
-    // }
 
     return {
       type: 'IfStatement',
@@ -237,7 +231,7 @@ class Parser {
    *  ;
    */
   AssignmentExpression() {
-    const left = this.EqualityExpression();
+    const left = this.LogicalORExpression();
 
     if (!this._isAssignmentOperator(this._lookahead.type)) {
       return left;
@@ -304,6 +298,33 @@ class Parser {
   }
 
   /**
+   * Logical OR expression
+   *
+   * x || y
+   *
+   * LogicalORExpression
+   *  : LogicalANDExpression LOGICAL_OR LogicalORExpression
+   *  | LogicalORExpression
+   */
+  LogicalORExpression() {
+    return this._LogicalExpression('LogicalANDExpression', 'LIGICAL_OR');
+  }
+
+  /**
+   * Logical AND epression.
+   *
+   * x && y
+   *
+   * LogicalANDExpression
+   *  : EqualityExpression LOGICAL_AND LogicalANDExpression
+   *  | EqualityExpression
+   *  ;
+   */
+  LogicalANDExpression() {
+    return this._LogicalExpression('EqualityExpression', 'LOGICAL_AND');
+  }
+
+  /**
    * EQUALITY_OPERATOR: ==, !=
    *
    * x == y
@@ -359,6 +380,28 @@ class Parser {
       'PrimaryExpression',
       'MULTIPLICATIVE_OPERATOR'
     );
+  }
+
+  /**
+   * Generic helper for LogicalExpression nodes
+   */
+  _LogicalExpression(builderName, operatorToken) {
+    let left = this[builderName]();
+
+    while (this._lookahead.type === operatorToken) {
+      const operator = this._eat(operatorToken).value;
+
+      const right = this[builderName]();
+
+      left = {
+        type: 'LogicalExpression',
+        operator,
+        left,
+        right,
+      };
+    }
+
+    return left;
   }
 
   /**

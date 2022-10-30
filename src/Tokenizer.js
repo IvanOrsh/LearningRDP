@@ -58,6 +58,11 @@ const Spec = [
   [/^[*[><]=?/, 'RELATIONAL_OPERATOR'],
 
   //------------------------
+  // Logical operators: &&, ||
+  [/^&&/, 'LOGICAL_AND'],
+  [/^\|\|/, 'LOGICAL_OR'],
+
+  //------------------------
   // Strings:
   [/^"[^"]*"/, 'STRING'],
   [/^'[^']*'/, 'STRING'],
