@@ -30,7 +30,9 @@ const parser = new Parser();
  */
 function exec() {
   const program = `
-    +x * -10;
+    while (x > 10) {
+      x -= 1;
+    }
   `;
 
   const ast = parser.parse(program);
