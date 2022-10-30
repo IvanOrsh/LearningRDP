@@ -58,9 +58,10 @@ const Spec = [
   [/^[*[><]=?/, 'RELATIONAL_OPERATOR'],
 
   //------------------------
-  // Logical operators: &&, ||
+  // Logical operators: &&, ||, !
   [/^&&/, 'LOGICAL_AND'],
   [/^\|\|/, 'LOGICAL_OR'],
+  [/^!/, 'LOGICAL_NOT'],
 
   //------------------------
   // Strings:
@@ -116,7 +117,7 @@ class Tokenizer {
       }
 
       // Should skip token, e.g whitespace
-      if (tokenType === null) {
+      if (tokenType == null) {
         return this.getNextToken();
       }
 
@@ -134,7 +135,7 @@ class Tokenizer {
    */
   _match(regexp, string) {
     const matched = regexp.exec(string);
-    if (matched === null) {
+    if (matched == null) {
       return null;
     }
     this._cursor += matched[0].length;
