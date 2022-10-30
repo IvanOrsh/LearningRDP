@@ -28,6 +28,9 @@ const Spec = [
   [/^\blet\b/, 'let'],
   [/^\bif\b/, 'if'],
   [/^\belse\b/, 'else'],
+  [/^\btrue\b/, 'true'],
+  [/^\bfalse\b/, 'false'],
+  [/^\bnull\b/, 'null'],
 
   //------------------------
   // Numbers:
@@ -36,6 +39,9 @@ const Spec = [
   //------------------------
   // Identifiers:
   [/^\w+/, 'IDENTIFIER'],
+
+  //------------------------
+  [/^[=!]=/, 'EQUALITY_OPERATOR'],
 
   //------------------------
   // Assignment operators: =, *=, /=, +=, -=,
@@ -81,7 +87,6 @@ class Tokenizer {
 
   /**
    * Whether we still have more tokens.
-   * @returns Boolean
    */
   hasMoreTokens() {
     return this._cursor < this._string.length;
